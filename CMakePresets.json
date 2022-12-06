@@ -1,0 +1,18 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "Web",
+            "binaryDir": "${workspaceFolder}/build/web",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+            },
+            "generator": "Ninja"
+        },
+        {
+            "name": "Linux",
+            "binaryDir": "${workspaceFolder}/build/linux",
+            "generator": "Ninja"
+        }
+    ]
+}
