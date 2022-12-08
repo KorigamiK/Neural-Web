@@ -9,6 +9,8 @@
         "PSPBUILD": "aur-pkgbuild",
         "*.rmarkdown": "markdown",
         "*.rmd": "markdown",
-        "vector": "cpp"
+        "vector": "cpp",
+        "iostream": "cpp",
+        "ostream": "cpp"
     }
 }

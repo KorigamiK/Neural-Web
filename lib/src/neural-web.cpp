@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "neural-web.hpp"
+#include "neural-web/library.hpp"
 
 library::library() : name{"neural-web"}
 {

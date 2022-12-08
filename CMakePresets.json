@@ -1,18 +1,29 @@
 {
-    "version": 2,
+    "version": 3,
     "configurePresets": [
+        {
+            "name": "executable",
+            "generator": "Ninja",
+            "hidden": true
+        },
         {
             "name": "Web",
             "binaryDir": "${workspaceFolder}/build/web",
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake"
             },
-            "generator": "Ninja"
+            "inherits": "executable"
         },
         {
             "name": "Linux",
             "binaryDir": "${workspaceFolder}/build/linux",
-            "generator": "Ninja"
+            "inherits": "executable"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "neural-web",
+            "configurePreset": "Linux"
         }
     ]
 }

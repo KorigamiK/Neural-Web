@@ -1,4 +1,4 @@
-#include "lib/neural-web.hpp"
+#include "neural-web/library.hpp"
 
 auto main(int argc, char const *argv[]) -> int
 {
