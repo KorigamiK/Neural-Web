@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "neural-web/library.hpp"
+#include "neural-web/network.hpp"
 
-library::library() : name{"neural-web"}
+Network::Network() : name{"neural-web"}
 {
   std::cout << "library::library()" << std::endl;
 }
