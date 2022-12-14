@@ -12,5 +12,8 @@
         "vector": "cpp",
         "iostream": "cpp",
         "ostream": "cpp"
-    }
+    },
+    "[cpp, hpp]": {
+        "editor.tabSize": 2
+    },
 }

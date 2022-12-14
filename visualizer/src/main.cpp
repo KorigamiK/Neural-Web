@@ -1,7 +1,10 @@
 #include <iostream>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 #include "neural-web/network.hpp"
-#include "visualizer/app.hpp"
+#include "visualizer/window.hpp"
 
 auto main(int argc, char const *argv[]) -> int
 {
@@ -9,6 +12,22 @@ auto main(int argc, char const *argv[]) -> int
   Network lib;
 
   std::cout << "Library " << lib.name << std::endl;
+
+  Window window;
+
+#ifdef __EMSCRIPTEN__
+  emscripten_set_main_loop_arg(
+      [](void *arg) {
+        Window *window = (Window *)arg;
+        window->mainLoop();
+      },
+      &window, 0, 1);
+#else
+  while (true)
+  {
+    window.mainLoop();
+  }
+#endif
 
   return 0;
 }
