@@ -1,34 +1,43 @@
-#include "visualizer/window.hpp"
+#include <SDL2/SDL_image.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 #include "utils.hpp"
 #include "visualizer/colors.hpp"
-#include <SDL2/SDL_image.h>
+#include "visualizer/window.hpp"
 
 Window::Window()
 {
+  log("Window::Window()");
+
   if (SDL_Init(SDL_INIT_VIDEO) != 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG)
     PANIC("Failed to initialize SDL");
 
-  window = std::shared_ptr<SDL_Window>(
-      SDL_CreateWindow("Visualizer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN),
-      SDL_DestroyWindow);
+  window = SDL_CreateWindow("Visualizer", SDL_WINDOWPOS_UNDEFINED,
+                            SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH,
+                            WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 
-  if (!window)
-    PANIC("Failed to create SDL window");
+  if (window == nullptr)
+    PANIC("Failed to create window");
 
-  renderer = std::shared_ptr<SDL_Renderer>(
-      SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC), SDL_DestroyRenderer);
+  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-  if (!renderer)
-    PANIC("Failed to create SDL renderer");
+  if (renderer == nullptr)
+    PANIC("Failed to create renderer");
 
-  SDL_SetRenderDrawColor(renderer.get(), COLOR_PINK, 255);
+  SDL_SetRenderDrawColor(renderer, COLOR_PINK, 255);
 
-  SDL_RenderPresent(renderer.get());
+  SDL_RenderPresent(renderer);
 }
 
 Window::~Window()
 {
+  log("Window::~Window()");
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  IMG_Quit();
+  SDL_Quit();
 }
 
 void Window::mainLoop()
@@ -37,9 +46,17 @@ void Window::mainLoop()
   while (SDL_PollEvent(&event))
   {
     if (event.type == SDL_QUIT)
-      exit(0);
+      stop();
   }
 
-  SDL_RenderClear(renderer.get());
-  SDL_RenderPresent(renderer.get());
+  SDL_RenderClear(renderer);
+  SDL_RenderPresent(renderer);
+}
+
+void Window::stop()
+{
+  running = false;
+#ifdef __EMSCRIPTEN__
+  emscripten_cancel_main_loop();
+#endif
 }

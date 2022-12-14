@@ -23,7 +23,7 @@ auto main(int argc, char const *argv[]) -> int
       },
       &window, 0, 1);
 #else
-  while (true)
+  while (window.running)
   {
     window.mainLoop();
   }
