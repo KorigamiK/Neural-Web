@@ -9,7 +9,7 @@
 auto main(int argc, char const *argv[]) -> int
 {
   std::cout << "Visualizer with constant " << APP_CONSTANT << std::endl;
-  Network lib;
+  Network lib(Topology({2, 3, 1}));
 
   std::cout << "Library " << lib.name << std::endl;
 
