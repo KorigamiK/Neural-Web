@@ -1,11 +1,14 @@
-#include <SDL2/SDL_image.h>
+#include "visualizer/window.hpp"
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 
+#include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_image.h>
+
 #include "utils.hpp"
 #include "visualizer/colors.hpp"
-#include "visualizer/window.hpp"
 
 Window::Window()
 {
@@ -14,9 +17,9 @@ Window::Window()
   if (SDL_Init(SDL_INIT_VIDEO) != 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG)
     PANIC("Failed to initialize SDL");
 
-  window = SDL_CreateWindow("Visualizer", SDL_WINDOWPOS_UNDEFINED,
-                            SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH,
-                            WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+  window =
+      SDL_CreateWindow("Visualizer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                       WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 
   if (window == nullptr)
     PANIC("Failed to create window");
@@ -49,7 +52,11 @@ void Window::mainLoop()
       stop();
   }
 
+  SDL_SetRenderDrawColor(renderer, COLOR_PINK, 255);
   SDL_RenderClear(renderer);
+
+  aacircleRGBA(renderer, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 10, 0, 0, 0, 255);
+
   SDL_RenderPresent(renderer);
 }
 

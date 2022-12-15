@@ -17,17 +17,19 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/i
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     neural-web
-    ${GLEW_LIBRARIES}
     ${SDL2_LIBRARIES}
     ${SDL2_IMAGE_LIBRARIES}
+    ${SDL2_GFX_LIBRARIES}
     ${OPENGL_LIBRARIES}
+    ${GLEW_LIBRARIES}
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${GLEW_INCLUDE_DIRS}
     ${SDL2_INCLUDE_DIRS}
     ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${SDL2_GFX_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}
+    ${GLEW_INCLUDE_DIRS}
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
