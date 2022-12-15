@@ -17,9 +17,9 @@ Window::Window()
   if (SDL_Init(SDL_INIT_VIDEO) != 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG)
     PANIC("Failed to initialize SDL");
 
-  window =
-      SDL_CreateWindow("Visualizer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                       WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+  window = SDL_CreateWindow(
+      "Visualizer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH,
+      WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
   if (window == nullptr)
     PANIC("Failed to create window");
