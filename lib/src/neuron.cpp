@@ -6,8 +6,9 @@
 
 using Layer = std::vector<Neuron>;
 
-Neuron::Neuron(unsigned numOutputs, unsigned myIndex)
-    : outputValue{0.0}, ownIndex{myIndex}, transferFunction{ActivationFunctions::sigmoid}
+Neuron::Neuron(unsigned numOutputs, unsigned ownIndex, double outputValue)
+    : outputValue{outputValue}, ownIndex{ownIndex}, transferFunction{
+                                                        ActivationFunctions::sigmoid}
 {
   for (unsigned c = 0; c < numOutputs; ++c)
   {

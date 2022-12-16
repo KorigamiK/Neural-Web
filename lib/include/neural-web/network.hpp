@@ -1,12 +1,11 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include "neural-web/neuron.hpp"
 #include "neural-web/topology.hpp"
 
-using Layer = std::vector<Neuron>;
+typedef std::vector<Neuron> Layer;
 
 /**
  * @brief The core implementation of the neural Network
@@ -30,4 +29,9 @@ private:
   Topology topology;
   std::vector<Layer> layers;
   double error;
+
+  void createInputLayer();
+  void createHiddenLayers();
+  void createOutputLayer();
+  void createBiasNeurons(unsigned layerNum, unsigned numOutputs);
 };

@@ -7,7 +7,7 @@
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
 
-#include "utils.hpp"
+#include "util.hpp"
 #include "visualizer/colors.hpp"
 
 Window::Window()

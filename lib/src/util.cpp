@@ -1,4 +1,4 @@
-#include "utils.hpp"
+#include "util.hpp"
 
 #include <stdexcept>
 
@@ -9,5 +9,5 @@ void PANIC(const char *message)
 
 void log(const char *message)
 {
-	std::cout << message << std::endl;
+  std::cout << message << std::endl;
 }

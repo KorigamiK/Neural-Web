@@ -4,13 +4,10 @@
 
 struct Topology
 {
-  Topology() = default;
-  inline Topology(const std::vector<unsigned> &topology) : topology{topology}
-  {
-  }
-  inline Topology(const std::initializer_list<unsigned> &topology) : topology{topology}
-  {
-  }
+  unsigned inputLayerSize;
+  unsigned outputLayerSize;
+  std::vector<unsigned> hiddenLayers;
+  int bias = 0;
 
-  std::vector<unsigned> topology;
+  Topology() = default;
 };

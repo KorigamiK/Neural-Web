@@ -6,36 +6,66 @@
 
 #include "neural-web/neuron.hpp"
 
-Network::Network(const Topology topology) : name{"neural-web"}
+void Network::createBiasNeurons(unsigned layerNum, unsigned numOutputs)
 {
-  std::cout << "library::library()" << std::endl;
+  for (unsigned neuronNum = 0; neuronNum < topology.bias; ++neuronNum)
+    layers[layerNum].push_back(
+        Neuron(numOutputs, layers[layerNum].size() - 1 + neuronNum, 1.0));
+}
 
-  this->topology = topology;
+void Network::createInputLayer()
+{
+  layers.push_back(Layer()); // topology.hiddenLayers[0] + topology.bias));
 
-  for (unsigned layerNum = 0; layerNum < topology.topology.size(); ++layerNum)
+  for (unsigned neuronNum = 0; neuronNum < topology.inputLayerSize; ++neuronNum)
+    layers.back().push_back(Neuron(topology.hiddenLayers[0] + topology.bias, neuronNum));
+
+  createBiasNeurons(0, topology.hiddenLayers[0] + topology.bias);
+}
+
+void Network::createOutputLayer()
+{
+  layers.push_back(Layer()); // topology.outputLayerSize)); // don't add bias neurons
+
+  for (unsigned neuronNum = 0; neuronNum < topology.outputLayerSize; ++neuronNum)
+    layers.back().push_back(Neuron(0, neuronNum));
+}
+
+void Network::createHiddenLayers()
+{
+  for (unsigned layerNum = 0; layerNum < topology.hiddenLayers.size() - 1; ++layerNum)
   {
-    layers.push_back(Layer());
-    unsigned numOutputs =
-        layerNum == topology.topology.size() - 1 ? 0 : topology.topology[layerNum + 1];
+    layers.push_back(Layer()); // topology.hiddenLayers[layerNum] + topology.bias));
+    unsigned numOutputs = topology.hiddenLayers[layerNum + 1] + topology.bias;
 
-    for (unsigned neuronNum = 0; neuronNum <= topology.topology[layerNum]; ++neuronNum)
-    {
+    for (unsigned neuronNum = 0; neuronNum < topology.hiddenLayers[layerNum]; ++neuronNum)
       layers.back().push_back(Neuron(numOutputs, neuronNum));
-      std::cout << "Made a Neuron!" << std::endl;
-    }
 
-    layers.back().back().setOutputVal(1.0);
+    createBiasNeurons(layerNum + 1, numOutputs); // add bias neurons next from input layer
   }
+
+  layers.push_back(Layer()); // topology.hiddenLayers.back() + topology.bias));
+  for (unsigned neuronNum = 0; neuronNum < topology.hiddenLayers.back(); ++neuronNum)
+    layers.back().push_back(Neuron(topology.outputLayerSize, neuronNum));
+
+  createBiasNeurons(layers.size() - 1,
+                    topology.outputLayerSize); // add bias neurons to last output layer
+}
+
+Network::Network(const Topology topology) : name{"neural-web"}, topology{topology}
+{
+  std::cout << "Network::Network()" << std::endl;
+  createInputLayer();
+  createHiddenLayers();
+  createOutputLayer();
 }
 
 void Network::feedForward(const std::vector<double> &inputs)
 {
-  assert(inputs.size() == topology.topology[0]);
+  assert(inputs.size() == topology.inputLayerSize);
 
   for (unsigned i = 0; i < inputs.size(); ++i)
-  {
     layers[0][i].setOutputVal(inputs[i]);
-  }
 
   for (unsigned layerNum = 1; layerNum < layers.size(); ++layerNum)
   {

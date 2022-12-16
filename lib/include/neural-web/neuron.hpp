@@ -25,7 +25,7 @@ private:
   TransferFunction &transferFunction;
 
 public:
-  Neuron(unsigned numOutputs, unsigned myIndex);
+  Neuron(unsigned numOutputs, unsigned ownIndex, double outputValue = 0.0);
 
   void setOutputVal(double val);
   double getOutputVal(void) const;
