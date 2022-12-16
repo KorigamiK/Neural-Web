@@ -25,13 +25,19 @@ public:
 
   void backPropagate(const std::vector<double> &targets);
 
+  /// @brief Get the results of the last feed forward
+  /// @param results The container of the results
   void getResults(std::vector<double> &results) const;
 
   const std::vector<Layer> &getLayers() const;
+  double getRecentAverageError() const;
+  void printLayers() const;
 
 private:
   std::vector<Layer> layers;
   double error;
+  double recentAverageError;
+  double recentAverageSmoothingFactor;
 
   void createInputLayer();
   void createHiddenLayers();

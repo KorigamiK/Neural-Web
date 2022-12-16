@@ -35,10 +35,12 @@ Window::Window()
       SDL_Rect{.x = 20, .y = 20, .w = 2 * WINDOW_WIDTH / 3 - 20, .h = WINDOW_HEIGHT - 40},
       neuralNetwork);
 
-  ioGrid = std::make_unique<IOGrid>(renderer, SDL_Rect{.x = 2 * WINDOW_WIDTH / 3,
-                                                       .y = 20,
-                                                       .w = WINDOW_WIDTH / 3 - 20,
-                                                       .h = WINDOW_HEIGHT - 40});
+  ioGrid = std::make_unique<IOGrid>(renderer,
+                                    SDL_Rect{.x = 2 * WINDOW_WIDTH / 3,
+                                             .y = 20,
+                                             .w = WINDOW_WIDTH / 3 - 20,
+                                             .h = WINDOW_HEIGHT - 40},
+                                    neuralNetwork);
 }
 
 Window::~Window()
@@ -81,13 +83,14 @@ void Window::mainLoop()
       break;
 
     case SDL_MOUSEMOTION:
-      ioGrid->updateMousePosition(event.motion.x, event.motion.y);
-      repaint = true;
+      repaint = ioGrid->updateMousePosition(event.motion.x, event.motion.y);
       break;
 
     case SDL_MOUSEBUTTONDOWN:
       ioGrid->addSelectedCell();
       repaint = true;
+      ioGrid->update();
+      mlpVisualizer->update();
       break;
 
     case SDL_KEYDOWN:
@@ -119,20 +122,22 @@ void Window::mainLoop()
     SDL_SetRenderDrawColor(renderer, COLOR_BACKGROUND, 255);
     SDL_RenderClear(renderer);
 
-    ioGrid->update();
-    mlpVisualizer->update();
     ioGrid->draw();
     mlpVisualizer->draw();
 
     SDL_RenderPresent(renderer);
   }
+
+  SDL_Delay(50);
 }
 
 void Window::initNeuralNetwork()
 {
   Topology networkTopology{
-      .inputLayerSize = 3, .outputLayerSize = 2, .hiddenLayers = {2, 3}, .bias = 1};
+      .inputLayerSize = 2, .outputLayerSize = 3, .hiddenLayers = {2, 3}, .bias = 1};
   neuralNetwork = std::make_shared<Network>(networkTopology);
+
+  neuralNetwork->printLayers();
 }
 
 void Window::stop()

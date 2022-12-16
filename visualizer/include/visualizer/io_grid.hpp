@@ -34,14 +34,18 @@ private:
   void drawUserInputs();
   void drawGridLines();
   void drawHoverdCell();
+  /// @brief Draws the output from the neural network
+  void colorGrid();
 
 public:
-  IOGrid(SDL_Renderer *renderer, SDL_Rect positionRect);
+  IOGrid(SDL_Renderer *renderer, SDL_Rect positionRect,
+         std::shared_ptr<Network> neuralNetwork);
   ~IOGrid();
 
   void draw();
   void update();
-  void updateMousePosition(int x, int y);
+  /// @return true if the mouse is inside the grid
+  bool updateMousePosition(int x, int y);
   void addSelectedCell();
   void updatePositionRect(SDL_Rect positionRect);
   void setOutputType(OutputType outputType);

@@ -2,11 +2,13 @@
 
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <iostream>
+#include <vector>
 
 #include "visualizer/colors.hpp"
 
-IOGrid::IOGrid(SDL_Renderer *renderer, SDL_Rect positionRect)
-    : renderer{renderer}, positionRect{positionRect}
+IOGrid::IOGrid(SDL_Renderer *renderer, SDL_Rect positionRect,
+               std::shared_ptr<Network> neuralNetwork)
+    : renderer{renderer}, positionRect{positionRect}, neuralNetwork{neuralNetwork}
 {
   std::cout << "IOGrid constructor" << std::endl;
 }
@@ -17,7 +19,6 @@ void IOGrid::drawUserInputs()
   {
     int cellRadius = positionRect.w / GRID_SIZE_X / 4;
 
-    // draw a circle instead of a rectangle
     int x = positionRect.x + input.first.first * positionRect.w / GRID_SIZE_X +
             positionRect.w / GRID_SIZE_X / 2;
 
@@ -65,28 +66,57 @@ void IOGrid::drawHoverdCell()
   }
 }
 
+void IOGrid::colorGrid()
+{
+  static std::vector<double> output;
+  for (int i = 0; i < GRID_SIZE_X; ++i)
+  {
+    for (int j = 0; j < GRID_SIZE_Y; ++j)
+    {
+      std::vector<double> input = {i / (double)GRID_SIZE_X, j / (double)GRID_SIZE_Y};
+      neuralNetwork->feedForward(input);
+      neuralNetwork->getResults(output);
+      int r = output[0];
+      int g = output[1];
+      int b = output[2];
+      std::cout << r << " " << g << " " << b << std::endl;
+      SDL_Rect cellRect = {.x = positionRect.x + i * positionRect.w / GRID_SIZE_X,
+                           .y = positionRect.y + j * positionRect.h / GRID_SIZE_Y,
+                           .w = positionRect.w / GRID_SIZE_X,
+                           .h = positionRect.h / GRID_SIZE_Y};
+      std::cout << neuralNetwork->getRecentAverageError() << std::endl;
+      SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+      SDL_RenderFillRect(renderer, &cellRect);
+    }
+  }
+}
+
 void IOGrid::draw()
 {
   SDL_SetRenderDrawColor(renderer, COLOR_GRID, 255);
   SDL_RenderFillRect(renderer, &positionRect);
 
+  colorGrid();
   drawGridLines();
   drawHoverdCell();
   drawUserInputs();
 }
 
-void IOGrid::updateMousePosition(int x, int y)
+bool IOGrid::updateMousePosition(int x, int y)
 {
   SDL_Point mousePosition = {x, y};
   if (SDL_PointInRect(&mousePosition, &positionRect))
   {
     cellHovered.first = (x - positionRect.x) * GRID_SIZE_X / positionRect.w;
     cellHovered.second = (y - positionRect.y) * GRID_SIZE_Y / positionRect.h;
+    // std::cout << cellHovered.first << " " << cellHovered.second << std::endl;
+    return true;
   }
   else
   {
     cellHovered.first = -1;
     cellHovered.second = -1;
+    return false;
   }
 }
 
@@ -122,6 +152,35 @@ void IOGrid::setOutputType(OutputType outputType)
 
 void IOGrid::update()
 {
+  static std::vector<double> targetVector(3);
+  static std::vector<double> inputVector(2);
+
+  std::cout << "training..." << std::endl;
+  // update the neural network
+  for (int i = 0; i < GRID_SIZE_X; ++i)
+  {
+    for (int j = 0; j < GRID_SIZE_Y; ++j)
+    {
+      inputVector[0] = (double)(i / GRID_SIZE_X);
+      inputVector[1] = (double)(j / GRID_SIZE_Y);
+      neuralNetwork->feedForward(inputVector);
+
+      if (UserInputs.find({i, j}) != UserInputs.end())
+      {
+        targetVector[0] = UserInputs[{i, j}].r;
+        targetVector[1] = UserInputs[{i, j}].g;
+        targetVector[2] = UserInputs[{i, j}].b;
+      }
+      else
+      {
+        targetVector[0] = 0;
+        targetVector[1] = 0;
+        targetVector[2] = 0;
+      }
+
+      neuralNetwork->backPropagate(targetVector);
+    }
+  }
 }
 
 void IOGrid::updatePositionRect(SDL_Rect positionRect)

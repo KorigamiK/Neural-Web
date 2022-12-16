@@ -75,7 +75,7 @@ void Network::feedForward(const std::vector<double> &inputs)
   for (unsigned layerNum = 1; layerNum < layers.size(); ++layerNum)
   {
     Layer &prevLayer = layers[layerNum - 1];
-    for (unsigned n = 0; n < layers[layerNum].size() - 1; ++n)
+    for (unsigned n = 0; n < layers[layerNum].size() - topology.bias; ++n)
     {
       layers[layerNum][n].feedForward(prevLayer);
     }
@@ -91,7 +91,8 @@ void Network::backPropagate(const std::vector<double> &targets)
   Layer &outputLayer = layers.back();
   error = 0.0;
 
-  for (unsigned n = 0; n < outputLayer.size() - 1; ++n)
+  // output layer doesn't have bias neurons
+  for (unsigned n = 0; n < outputLayer.size(); ++n)
   {
     double delta = targets[n] - outputLayer[n].getOutputVal();
     error += delta * delta;
@@ -99,19 +100,64 @@ void Network::backPropagate(const std::vector<double> &targets)
   error /= outputLayer.size() - 1; // get average error squared
   error = sqrt(error);             // RMS
 
+  // Implement a recent average measurement
+  recentAverageError = (recentAverageError * recentAverageSmoothingFactor + error) /
+                       (recentAverageSmoothingFactor + 1.0);
+
   // Calculate output layer gradients
-  // Each output neuron's gradient = (target - actual) *
-  // transferFunctionDerivative(output)
+  // Each output neuron's gradient = (target - actual) * transfer function derivative
+  for (unsigned n = 0; n < outputLayer.size(); ++n)
+    outputLayer[n].calcOutputGradients(targets[n]);
 
   // Calculate hidden layer gradients
-  // Each hidden neuron's gradient = sum(output gradients * output weights) *
-  // transferFunctionDerivative(output)
+  // Each hidden neuron's gradient =
+  //      sum(output gradients * output weights) * transfer function derivative
+  // skip output & input layer
+  for (unsigned layerNum = layers.size() - 2; layerNum > 0; --layerNum)
+  {
+    Layer &hiddenLayer = layers[layerNum];
+    Layer &nextLayer = layers[layerNum + 1];
+
+    for (unsigned n = 0; n < hiddenLayer.size(); ++n)
+      hiddenLayer[n].calcHiddenGradients(nextLayer);
+  }
 
   // For all layers from outputs to first hidden layer,
   // update connection weights
   // Each connection's weight = weight + learningRate * output gradient * output value
+  for (unsigned layerNum = layers.size() - 1; layerNum > 0; --layerNum)
+  {
+    Layer &layer = layers[layerNum];
+    Layer &prevLayer = layers[layerNum - 1];
 
-  // Update bias weights
-  // Each bias weight = bias weight + learningRate * output gradients
-  // (bias value is always 1)
+    for (unsigned n = 0; n < layer.size() - topology.bias; ++n)
+      layer[n].updateInputWeights(prevLayer);
+  }
+}
+
+void Network::getResults(std::vector<double> &results) const
+{
+  results.clear();
+
+  for (unsigned n = 0; n < layers.back().size(); ++n)
+    results.push_back(layers.back()[n].getOutputVal());
+}
+
+double Network::getRecentAverageError() const
+{
+  return recentAverageError;
+}
+
+void Network::printLayers() const
+{
+  for (unsigned layerNum = 0; layerNum < layers.size(); ++layerNum)
+  {
+    std::cout << "Layer " << layerNum << std::endl;
+    for (unsigned neuronNum = 0; neuronNum < layers[layerNum].size(); ++neuronNum)
+    {
+      std::cout << "Neuron " << neuronNum
+                << " Value: " << layers[layerNum][neuronNum].getOutputVal() << std::endl;
+      layers[layerNum][neuronNum].printWeights();
+    }
+  }
 }
