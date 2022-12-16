@@ -3,6 +3,8 @@
 #include <SDL2/SDL.h>
 #include <memory>
 
+#include "visualizer/mlp.hpp"
+
 #define APP_CONSTANT (0.01f)
 
 #define WINDOW_WIDTH (480)
@@ -15,6 +17,8 @@ class Window
 
 private:
   bool running = true;
+  bool repaint = true;
+  std::unique_ptr<MLP> mlpVisualizer;
   void stop();
 
 public:

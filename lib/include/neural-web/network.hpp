@@ -17,6 +17,8 @@ class Network
 public:
   std::string name;
 
+  const Topology topology;
+
   Network(const Topology topology);
 
   void feedForward(const std::vector<double> &inputs);
@@ -25,8 +27,9 @@ public:
 
   void getResults(std::vector<double> &results) const;
 
+  const std::vector<Layer> &getLayers() const;
+
 private:
-  Topology topology;
   std::vector<Layer> layers;
   double error;
 

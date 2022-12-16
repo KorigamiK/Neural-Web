@@ -87,7 +87,7 @@
         "valarray": "cpp",
         "variant": "cpp"
     },
-    "[cpp, hpp]": {
+    "[c]": {
         "editor.tabSize": 2
-    },
+    }
 }

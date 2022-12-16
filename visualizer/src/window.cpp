@@ -4,7 +4,6 @@
 #include <emscripten.h>
 #endif
 
-#include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
 
 #include "util.hpp"
@@ -29,9 +28,9 @@ Window::Window()
   if (renderer == nullptr)
     PANIC("Failed to create renderer");
 
-  SDL_SetRenderDrawColor(renderer, COLOR_PINK, 255);
-
-  SDL_RenderPresent(renderer);
+  mlpVisualizer = std::make_unique<MLP>(
+      window, renderer,
+      SDL_Rect{.x = 0, .y = 0, .w = 2 * WINDOW_WIDTH / 3, .h = WINDOW_HEIGHT});
 }
 
 Window::~Window()
@@ -48,16 +47,37 @@ void Window::mainLoop()
   SDL_Event event;
   while (SDL_PollEvent(&event))
   {
-    if (event.type == SDL_QUIT)
+    switch (event.type)
+    {
+    case SDL_QUIT:
       stop();
+      break;
+
+    case SDL_WINDOWEVENT:
+      switch (event.window.event)
+      {
+      case SDL_WINDOWEVENT_RESIZED:
+        mlpVisualizer->updatePositionRect(std::move(SDL_Rect{
+            .x = 0, .y = 0, .w = 2 * event.window.data1 / 3, .h = event.window.data2}));
+        repaint = true;
+        break;
+      }
+      break;
+    }
   }
 
-  SDL_SetRenderDrawColor(renderer, COLOR_PINK, 255);
-  SDL_RenderClear(renderer);
+  if (repaint)
+  {
+    repaint = false;
 
-  aacircleRGBA(renderer, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 10, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, COLOR_PINK, 255);
+    SDL_RenderClear(renderer);
 
-  SDL_RenderPresent(renderer);
+    mlpVisualizer->draw();
+    mlpVisualizer->update();
+
+    SDL_RenderPresent(renderer);
+  }
 }
 
 void Window::stop()

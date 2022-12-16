@@ -13,6 +13,11 @@ void Network::createBiasNeurons(unsigned layerNum, unsigned numOutputs)
         Neuron(numOutputs, layers[layerNum].size() - 1 + neuronNum, 1.0));
 }
 
+const std::vector<Layer> &Network::getLayers() const
+{
+  return layers;
+}
+
 void Network::createInputLayer()
 {
   layers.push_back(Layer()); // topology.hiddenLayers[0] + topology.bias));
