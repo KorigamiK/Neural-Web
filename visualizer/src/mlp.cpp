@@ -6,12 +6,11 @@
 #include "neural-web/functions.hpp"
 #include "visualizer/colors.hpp"
 
-MLP::MLP(SDL_Window *window, SDL_Renderer *renderer, SDL_Rect positionRect)
-    : window{window}, renderer{renderer}, positionRect{positionRect}
+MLP::MLP(SDL_Renderer *renderer, SDL_Rect positionRect,
+         std::shared_ptr<Network> neuralNetwork)
+    : renderer{renderer}, positionRect{positionRect}, neuralNetwork{neuralNetwork}
 {
-  Topology networkTopology{
-      .inputLayerSize = 3, .outputLayerSize = 2, .hiddenLayers = {2, 3}, .bias = 1};
-  neuralNetwork = std::make_unique<Network>(networkTopology);
+  std::cout << "MLP created" << std::endl;
 }
 
 void MLP::draw()
@@ -42,8 +41,6 @@ void MLP::drawNeurons()
   int layerDistance =
       (positionRect.w - 2 * neuronRadius) / (topology.hiddenLayers.size() + 3);
 
-  std::cout << "Layer distance: " << layerDistance << std::endl;
-
   int x = positionRect.x + layerDistance + neuronRadius;
 
   for (int i = 0; i < layers.size(); i++)
@@ -70,7 +67,7 @@ void MLP::drawNeurons()
 
       auto scaleFactor =
           ActivationFunctions::sigmoid.function(layers[i][j].getOutputVal() + 0.1);
-      // Draw neuron with color scaled by output value
+
       filledCircleRGBA(renderer, x, y, neuronRadius,
                        GET_SCALE_COLOR(GET_COLOR_NEURON(), scaleFactor), 255);
       aacircleRGBA(renderer, x, y, neuronRadius, COLOR_WHITE, 255);
@@ -95,4 +92,5 @@ void MLP::update()
 
 MLP::~MLP()
 {
+  std::cout << "MLP destroyed" << std::endl;
 }

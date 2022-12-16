@@ -10,11 +10,10 @@
 class MLP
 {
 private:
-  SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Rect positionRect;
 
-  std::unique_ptr<Network> neuralNetwork;
+  std::shared_ptr<Network> neuralNetwork;
 
   SDL_Point getAbsolutePosition(SDL_Point position);
 
@@ -22,7 +21,8 @@ private:
   void drawNetwork();
 
 public:
-  MLP(SDL_Window *window, SDL_Renderer *renderer, SDL_Rect positionRect);
+  MLP(SDL_Renderer *renderer, SDL_Rect positionRect,
+      std::shared_ptr<Network> neuralNetwork);
 
   void draw();
   void update();

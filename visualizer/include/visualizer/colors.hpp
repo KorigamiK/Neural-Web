@@ -11,3 +11,7 @@
 #define SCALE_COLOR(r, g, b, scale) (r * scale), (g * scale), (b * scale)
 #define GET_COLOR_NEURON() 0, 39, 56
 #define GET_SCALE_COLOR(ARG, scale) SCALE_COLOR(ARG, scale)
+
+#define COLOR_GRID 28, 39, 38
+#define COLOR_GRID_LINES 120, 120, 120
+#define COLOR_GRID_LINES_HOVERED 75, 255, 220

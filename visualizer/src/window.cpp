@@ -28,10 +28,17 @@ Window::Window()
   if (renderer == nullptr)
     PANIC("Failed to create renderer");
 
+  initNeuralNetwork();
+
   mlpVisualizer = std::make_unique<MLP>(
-      window, renderer,
-      SDL_Rect{
-          .x = 20, .y = 20, .w = 2 * WINDOW_WIDTH / 3 - 20, .h = WINDOW_HEIGHT - 40});
+      renderer,
+      SDL_Rect{.x = 20, .y = 20, .w = 2 * WINDOW_WIDTH / 3 - 20, .h = WINDOW_HEIGHT - 40},
+      neuralNetwork);
+
+  ioGrid = std::make_unique<IOGrid>(renderer, SDL_Rect{.x = 2 * WINDOW_WIDTH / 3,
+                                                       .y = 20,
+                                                       .w = WINDOW_WIDTH / 3 - 20,
+                                                       .h = WINDOW_HEIGHT - 40});
 }
 
 Window::~Window()
@@ -63,9 +70,22 @@ void Window::mainLoop()
                                .y = 20,
                                .w = 2 * event.window.data1 / 3 - 20,
                                .h = event.window.data2 - 40}));
+
+        ioGrid->updatePositionRect(std::move(SDL_Rect{.x = 2 * event.window.data1 / 3,
+                                                      .y = 20,
+                                                      .w = event.window.data1 / 3 - 20,
+                                                      .h = event.window.data2 - 40}));
         repaint = true;
         break;
       }
+      break;
+    case SDL_MOUSEMOTION:
+      ioGrid->updateMousePosition(event.motion.x, event.motion.y);
+      repaint = true;
+      break;
+    case SDL_MOUSEBUTTONDOWN:
+      ioGrid->addSelectedCell();
+      repaint = true;
       break;
     }
   }
@@ -77,11 +97,20 @@ void Window::mainLoop()
     SDL_SetRenderDrawColor(renderer, COLOR_BACKGROUND, 255);
     SDL_RenderClear(renderer);
 
-    mlpVisualizer->draw();
+    ioGrid->update();
     mlpVisualizer->update();
+    ioGrid->draw();
+    mlpVisualizer->draw();
 
     SDL_RenderPresent(renderer);
   }
+}
+
+void Window::initNeuralNetwork()
+{
+  Topology networkTopology{
+      .inputLayerSize = 3, .outputLayerSize = 2, .hiddenLayers = {2, 3}, .bias = 1};
+  neuralNetwork = std::make_shared<Network>(networkTopology);
 }
 
 void Window::stop()

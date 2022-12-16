@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <memory>
 
+#include "visualizer/io_grid.hpp"
 #include "visualizer/mlp.hpp"
 
 #define APP_CONSTANT (0.01f)
@@ -18,8 +19,12 @@ class Window
 private:
   bool running = true;
   bool repaint = true;
+  std::shared_ptr<Network> neuralNetwork;
   std::unique_ptr<MLP> mlpVisualizer;
+  std::unique_ptr<IOGrid> ioGrid;
+
   void stop();
+  void initNeuralNetwork();
 
 public:
   SDL_Window *window;
