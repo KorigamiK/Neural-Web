@@ -14,6 +14,13 @@ struct Output
   int r, g, b;
 };
 
+enum class OutputType
+{
+  RED,
+  GREEN,
+  BLUE
+};
+
 class IOGrid
 {
 private:
@@ -22,8 +29,11 @@ private:
   std::shared_ptr<Network> neuralNetwork;
   std::pair<int, int> cellHovered = {-1, -1};
   std::map<std::pair<int, int>, Output> UserInputs;
+  OutputType outputType = OutputType::RED;
 
   void drawUserInputs();
+  void drawGridLines();
+  void drawHoverdCell();
 
 public:
   IOGrid(SDL_Renderer *renderer, SDL_Rect positionRect);
@@ -34,4 +44,5 @@ public:
   void updateMousePosition(int x, int y);
   void addSelectedCell();
   void updatePositionRect(SDL_Rect positionRect);
+  void setOutputType(OutputType outputType);
 };

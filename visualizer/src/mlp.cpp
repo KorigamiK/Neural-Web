@@ -81,8 +81,6 @@ void MLP::drawNeurons()
 
 void MLP::drawNetwork()
 {
-  std::cout << "Drawing network" << std::endl;
-
   drawNeurons();
 }
 

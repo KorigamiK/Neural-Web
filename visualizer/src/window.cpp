@@ -79,13 +79,35 @@ void Window::mainLoop()
         break;
       }
       break;
+
     case SDL_MOUSEMOTION:
       ioGrid->updateMousePosition(event.motion.x, event.motion.y);
       repaint = true;
       break;
+
     case SDL_MOUSEBUTTONDOWN:
       ioGrid->addSelectedCell();
       repaint = true;
+      break;
+
+    case SDL_KEYDOWN:
+      switch (event.key.keysym.sym)
+      {
+      case SDLK_r:
+        ioGrid->setOutputType(OutputType::RED);
+        repaint = true;
+        break;
+
+      case SDLK_g:
+        ioGrid->setOutputType(OutputType::GREEN);
+        repaint = true;
+        break;
+
+      case SDLK_b:
+        ioGrid->setOutputType(OutputType::BLUE);
+        repaint = true;
+        break;
+      }
       break;
     }
   }

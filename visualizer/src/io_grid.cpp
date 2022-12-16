@@ -31,11 +31,8 @@ void IOGrid::drawUserInputs()
   }
 }
 
-void IOGrid::draw()
+void IOGrid::drawGridLines()
 {
-  SDL_SetRenderDrawColor(renderer, COLOR_GRID, 255);
-  SDL_RenderFillRect(renderer, &positionRect);
-
   for (int i = 0; i < GRID_SIZE_X; ++i)
   {
     SDL_SetRenderDrawColor(renderer, COLOR_GRID_LINES, 255);
@@ -52,7 +49,10 @@ void IOGrid::draw()
                        positionRect.x + positionRect.w,
                        positionRect.y + i * positionRect.h / GRID_SIZE_Y);
   }
+}
 
+void IOGrid::drawHoverdCell()
+{
   if (cellHovered.first != -1 && cellHovered.second != -1)
   {
     SDL_SetRenderDrawColor(renderer, COLOR_GRID_LINES_HOVERED, 255);
@@ -63,7 +63,15 @@ void IOGrid::draw()
         .h = positionRect.h / GRID_SIZE_Y};
     SDL_RenderDrawRect(renderer, &cellRect);
   }
+}
 
+void IOGrid::draw()
+{
+  SDL_SetRenderDrawColor(renderer, COLOR_GRID, 255);
+  SDL_RenderFillRect(renderer, &positionRect);
+
+  drawGridLines();
+  drawHoverdCell();
   drawUserInputs();
 }
 
@@ -84,8 +92,32 @@ void IOGrid::updateMousePosition(int x, int y)
 
 void IOGrid::addSelectedCell()
 {
-  if (cellHovered.first != -1 && cellHovered.second != -1)
-    UserInputs[cellHovered] = {255, 255, 255};
+  if (cellHovered.first == -1 || cellHovered.second == -1)
+    return;
+
+  if (UserInputs.find(cellHovered) != UserInputs.end())
+  {
+    UserInputs.erase(cellHovered);
+    return;
+  }
+
+  switch (outputType)
+  {
+  case OutputType::RED:
+    UserInputs[cellHovered] = {255, 0, 0};
+    break;
+  case OutputType::GREEN:
+    UserInputs[cellHovered] = {0, 255, 0};
+    break;
+  case OutputType::BLUE:
+    UserInputs[cellHovered] = {0, 0, 255};
+    break;
+  }
+}
+
+void IOGrid::setOutputType(OutputType outputType)
+{
+  this->outputType = outputType;
 }
 
 void IOGrid::update()
