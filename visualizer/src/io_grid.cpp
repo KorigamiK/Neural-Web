@@ -1,5 +1,6 @@
 #include "visualizer/io_grid.hpp"
 
+#include <SDL2/SDL2_gfxPrimitives.h>
 #include <iostream>
 
 #include "visualizer/colors.hpp"
@@ -14,13 +15,19 @@ void IOGrid::drawUserInputs()
 {
   for (auto &input : UserInputs)
   {
-    SDL_SetRenderDrawColor(renderer, input.second.r, input.second.g, input.second.b, 255);
-    SDL_Rect cellRect = {
-        .x = positionRect.x + input.first.first * positionRect.w / GRID_SIZE_X,
-        .y = positionRect.y + input.first.second * positionRect.h / GRID_SIZE_Y,
-        .w = positionRect.w / GRID_SIZE_X,
-        .h = positionRect.h / GRID_SIZE_Y};
-    SDL_RenderFillRect(renderer, &cellRect);
+    int cellRadius = positionRect.w / GRID_SIZE_X / 4;
+
+    // draw a circle instead of a rectangle
+    int x = positionRect.x + input.first.first * positionRect.w / GRID_SIZE_X +
+            positionRect.w / GRID_SIZE_X / 2;
+
+    int y = positionRect.y + input.first.second * positionRect.h / GRID_SIZE_Y +
+            positionRect.h / GRID_SIZE_Y / 2;
+
+    filledCircleRGBA(renderer, x, y, cellRadius, input.second.r, input.second.g,
+                     input.second.b, 255);
+    aacircleRGBA(renderer, x, y, cellRadius, input.second.r, input.second.g,
+                 input.second.b, 255);
   }
 }
 
@@ -62,8 +69,8 @@ void IOGrid::draw()
 
 void IOGrid::updateMousePosition(int x, int y)
 {
-  if (x >= positionRect.x && x <= positionRect.x + positionRect.w &&
-      y >= positionRect.y && y <= positionRect.y + positionRect.h)
+  SDL_Point mousePosition = {x, y};
+  if (SDL_PointInRect(&mousePosition, &positionRect))
   {
     cellHovered.first = (x - positionRect.x) * GRID_SIZE_X / positionRect.w;
     cellHovered.second = (y - positionRect.y) * GRID_SIZE_Y / positionRect.h;
