@@ -30,7 +30,8 @@ Window::Window()
 
   mlpVisualizer = std::make_unique<MLP>(
       window, renderer,
-      SDL_Rect{.x = 0, .y = 0, .w = 2 * WINDOW_WIDTH / 3, .h = WINDOW_HEIGHT});
+      SDL_Rect{
+          .x = 20, .y = 20, .w = 2 * WINDOW_WIDTH / 3 - 20, .h = WINDOW_HEIGHT - 40});
 }
 
 Window::~Window()
@@ -57,8 +58,11 @@ void Window::mainLoop()
       switch (event.window.event)
       {
       case SDL_WINDOWEVENT_RESIZED:
-        mlpVisualizer->updatePositionRect(std::move(SDL_Rect{
-            .x = 0, .y = 0, .w = 2 * event.window.data1 / 3, .h = event.window.data2}));
+        mlpVisualizer->updatePositionRect(
+            std::move(SDL_Rect{.x = 20,
+                               .y = 20,
+                               .w = 2 * event.window.data1 / 3 - 20,
+                               .h = event.window.data2 - 40}));
         repaint = true;
         break;
       }
@@ -70,7 +74,7 @@ void Window::mainLoop()
   {
     repaint = false;
 
-    SDL_SetRenderDrawColor(renderer, COLOR_PINK, 255);
+    SDL_SetRenderDrawColor(renderer, COLOR_BACKGROUND, 255);
     SDL_RenderClear(renderer);
 
     mlpVisualizer->draw();

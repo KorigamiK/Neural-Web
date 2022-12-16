@@ -3,6 +3,9 @@
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <iostream>
 
+#include "neural-web/functions.hpp"
+#include "visualizer/colors.hpp"
+
 MLP::MLP(SDL_Window *window, SDL_Renderer *renderer, SDL_Rect positionRect)
     : window{window}, renderer{renderer}, positionRect{positionRect}
 {
@@ -24,30 +27,66 @@ void MLP::updatePositionRect(SDL_Rect positionRect)
   this->positionRect = positionRect;
 }
 
+SDL_Point MLP::getAbsolutePosition(SDL_Point position)
+{
+  return std::move(SDL_Point{position.x + positionRect.x, position.y + positionRect.y});
+}
+
+void MLP::drawNeurons()
+{
+  auto &topology = neuralNetwork->topology;
+  auto &layers = neuralNetwork->getLayers();
+
+  int neuronRadius = NEURON_RADIUS;
+
+  int layerDistance =
+      (positionRect.w - 2 * neuronRadius) / (topology.hiddenLayers.size() + 3);
+
+  std::cout << "Layer distance: " << layerDistance << std::endl;
+
+  int x = positionRect.x + layerDistance + neuronRadius;
+
+  for (int i = 0; i < layers.size(); i++)
+  {
+    int neuronVDistance = positionRect.h / (layers[i].size() + 1);
+    int y = neuronRadius + neuronVDistance;
+
+    for (int j = 0; j < layers[i].size(); j++)
+    {
+      // Draw connections
+      int nextNeuronVDistance = positionRect.h / (layers[i + 1].size() + 1);
+      for (int k = 0; k < layers[i][j].numOutputs; k++)
+      {
+        int nextLayer = i + 1;
+        int nextNeuron = k;
+
+        int nextX = x + layerDistance;
+        int nextY = neuronRadius + nextNeuronVDistance * (nextNeuron + 1);
+
+        int weight = layers[i][j].getOutputWeights()[k].weight;
+
+        aalineRGBA(renderer, x, y, nextX, nextY, COLOR_WHITE, 255 * (1 - weight));
+      }
+
+      auto scaleFactor =
+          ActivationFunctions::sigmoid.function(layers[i][j].getOutputVal() + 0.1);
+      // Draw neuron with color scaled by output value
+      filledCircleRGBA(renderer, x, y, neuronRadius,
+                       GET_SCALE_COLOR(GET_COLOR_NEURON(), scaleFactor), 255);
+      aacircleRGBA(renderer, x, y, neuronRadius, COLOR_WHITE, 255);
+
+      y += neuronVDistance;
+    }
+    x += layerDistance;
+    y = neuronRadius;
+  }
+}
+
 void MLP::drawNetwork()
 {
   std::cout << "Drawing network" << std::endl;
 
-  // Draw hidden layers
-  auto &layers = neuralNetwork->getLayers();
-  auto &topology = neuralNetwork->topology;
-
-  int layerWidth = positionRect.w / (topology.hiddenLayers.size() + 2);
-  int layerHeight = positionRect.h / (topology.hiddenLayers.size() + 2);
-
-  int layerX = positionRect.x + layerWidth;
-  int layerY = positionRect.y + layerHeight;
-
-  for (auto &layer : layers)
-  {
-    for (auto &neuron : layer)
-    {
-      filledCircleRGBA(renderer, layerX, layerY, 10, 255, 255, 255, 255);
-      layerY += layerHeight;
-    }
-    layerX += layerWidth;
-    layerY = positionRect.y + layerHeight;
-  }
+  drawNeurons();
 }
 
 void MLP::update()

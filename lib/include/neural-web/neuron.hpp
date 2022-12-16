@@ -25,6 +25,9 @@ private:
   TransferFunction &transferFunction;
 
 public:
+  const unsigned numOutputs;
+  const std::vector<Connection> &getOutputWeights() const;
+
   Neuron(unsigned numOutputs, unsigned ownIndex, double outputValue = 0.0);
 
   void setOutputVal(double val);

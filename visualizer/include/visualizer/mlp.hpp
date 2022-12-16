@@ -4,6 +4,8 @@
 #include <memory>
 #include <neural-web/network.hpp>
 
+#define NEURON_RADIUS 12
+
 /// @brief Class for a Multi-Layer Perceptron visualization
 class MLP
 {
@@ -14,6 +16,9 @@ private:
 
   std::unique_ptr<Network> neuralNetwork;
 
+  SDL_Point getAbsolutePosition(SDL_Point position);
+
+  void drawNeurons();
   void drawNetwork();
 
 public:
