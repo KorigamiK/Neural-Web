@@ -1,8 +1,12 @@
 #include "visualizer/mlp.hpp"
 
 #include <SDL2/SDL2_gfxPrimitives.h>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 
+#include "SDL_pixels.h"
+#include "graphics/font.hpp"
 #include "neural-web/functions.hpp"
 #include "visualizer/colors.hpp"
 
@@ -71,6 +75,27 @@ void MLP::drawNeurons()
       filledCircleRGBA(renderer, x, y, neuronRadius,
                        GET_SCALE_COLOR(GET_COLOR_NEURON(), scaleFactor), 255);
       aacircleRGBA(renderer, x, y, neuronRadius, COLOR_WHITE, 255);
+
+      // Draw neuron value
+      // TODO: Fix this
+
+      std::stringstream fixedNeuronValue;
+      fixedNeuronValue << std::fixed << std::setprecision(2)
+                       << layers[i][j].getOutputVal();
+      std::string neuronValue = fixedNeuronValue.str();
+      auto *valueTexture =
+          FontManager::getTexture(neuronValue, SDL_Color{COLOR_FONT}, renderer);
+
+      int valueTextureWidth;
+      int valueTextureHeight;
+      SDL_QueryTexture(valueTexture, NULL, NULL, &valueTextureWidth, &valueTextureHeight);
+
+      SDL_Rect valueTextureRect = {x - valueTextureWidth / 2, y - valueTextureHeight / 2,
+                                   valueTextureWidth, valueTextureHeight};
+
+      SDL_RenderCopy(renderer, valueTexture, NULL, &valueTextureRect);
+
+      SDL_DestroyTexture(valueTexture);
 
       y += neuronVDistance;
     }

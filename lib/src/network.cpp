@@ -75,7 +75,7 @@ void Network::feedForward(const std::vector<double> &inputs)
   for (unsigned layerNum = 1; layerNum < layers.size(); ++layerNum)
   {
     Layer &prevLayer = layers[layerNum - 1];
-    for (unsigned n = 0; n < layers[layerNum].size() - topology.bias; ++n)
+    for (unsigned n = 0; n < layers[layerNum].size(); ++n)
     {
       layers[layerNum][n].feedForward(prevLayer);
     }

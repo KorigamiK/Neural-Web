@@ -4,7 +4,7 @@
 #include <memory>
 #include <neural-web/network.hpp>
 
-#define NEURON_RADIUS 12
+#define NEURON_RADIUS 16
 
 /// @brief Class for a Multi-Layer Perceptron visualization
 class MLP

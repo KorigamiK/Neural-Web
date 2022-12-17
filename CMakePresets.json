@@ -7,8 +7,27 @@
     },
     "buildPresets": [
         {
-            "name": "executable",
-            "jobs": 4
+            "name": "visualizer",
+            "jobs": 4,
+            "description": "Build the visualizer",
+            "configurePreset": "Linux",
+            "targets": [
+                "visualizer"
+            ]
+        },
+        {
+            "name": "visualizer-web",
+            "jobs": 4,
+            "description": "Build the neural network for the web",
+            "configurePreset": "Web",
+            "targets": "visualizer"
+        },
+        {
+            "name": "neural-web-test",
+            "jobs": 4,
+            "description": "Run and debug the tests for the library",
+            "configurePreset": "linux",
+            "targets": "neural-web-test"
         }
     ],
     "configurePresets": [
@@ -17,7 +36,8 @@
             "generator": "Ninja",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {

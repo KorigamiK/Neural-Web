@@ -6,6 +6,7 @@
 
 #include <SDL2/SDL_image.h>
 
+#include "graphics/font.hpp"
 #include "util.hpp"
 #include "visualizer/colors.hpp"
 
@@ -13,7 +14,8 @@ Window::Window()
 {
   log("Window::Window()");
 
-  if (SDL_Init(SDL_INIT_VIDEO) != 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG)
+  if (SDL_Init(SDL_INIT_VIDEO) != 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG ||
+      FontManager::init() != 0)
     PANIC("Failed to initialize SDL");
 
   window = SDL_CreateWindow(
@@ -49,6 +51,7 @@ Window::~Window()
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   IMG_Quit();
+  FontManager::close();
   SDL_Quit();
 }
 
@@ -134,7 +137,7 @@ void Window::mainLoop()
 void Window::initNeuralNetwork()
 {
   Topology networkTopology{
-      .inputLayerSize = 2, .outputLayerSize = 3, .hiddenLayers = {2, 3}, .bias = 1};
+      .inputLayerSize = 2, .outputLayerSize = 3, .hiddenLayers = {2}, .bias = 1};
   neuralNetwork = std::make_shared<Network>(networkTopology);
 
   neuralNetwork->printLayers();

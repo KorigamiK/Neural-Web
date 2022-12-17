@@ -36,7 +36,7 @@ public:
 private:
   std::vector<Layer> layers;
   double error;
-  double recentAverageError;
+  double recentAverageError = 0.0;
   double recentAverageSmoothingFactor;
 
   void createInputLayer();
