@@ -12,10 +12,10 @@ typedef std::vector<Neuron> Layer;
  * 		- For now it's a fully, forward connected network
  *
  */
-class Netowrk
+class Network
 {
 public:
-  Netowrk(const std::vector<unsigned> &topology);
+  Network(const Topology &topology);
 
   void feedForward(const std::vector<double> &inputs);
 
@@ -27,10 +27,15 @@ public:
 
   double getRecentAverageError(void) const;
 
+  const Topology &getTopology(void) const;
+
+  const std::vector<Layer> &getLayers(void) const;
+
 private:
   std::vector<Layer> m_layers;
   double m_error;
   double m_recentAverageError;
   /// @brief Number of training samples to average over
   static double m_recentAverageSmoothingFactor;
+  Topology m_topology;
 };

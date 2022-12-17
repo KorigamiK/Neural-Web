@@ -37,13 +37,12 @@ SDL_Point MLP::getAbsolutePosition(SDL_Point position)
 
 void MLP::drawNeurons()
 {
-  auto &topology = neuralNetwork->topology;
+  auto &topology = neuralNetwork->getTopology();
   auto &layers = neuralNetwork->getLayers();
 
   int neuronRadius = NEURON_RADIUS;
 
-  int layerDistance =
-      (positionRect.w - 2 * neuronRadius) / (topology.hiddenLayers.size() + 3);
+  int layerDistance = (positionRect.w - 2 * neuronRadius) / (topology.size() + 1);
 
   int x = positionRect.x + layerDistance + neuronRadius;
 
@@ -56,7 +55,7 @@ void MLP::drawNeurons()
     {
       // Draw connections
       int nextNeuronVDistance = positionRect.h / (layers[i + 1].size() + 1);
-      for (int k = 0; k < layers[i][j].numOutputs; k++)
+      for (int k = 0; k < layers[i][j].getNumOutputs(); k++)
       {
         int nextLayer = i + 1;
         int nextNeuron = k;
@@ -70,7 +69,7 @@ void MLP::drawNeurons()
       }
 
       auto scaleFactor =
-          ActivationFunctions::sigmoid.function(layers[i][j].getOutputVal() + 0.1);
+          ActivationFunctions::Sigmoid.function(layers[i][j].getOutputVal() + 0.1);
 
       filledCircleRGBA(renderer, x, y, neuronRadius,
                        GET_SCALE_COLOR(GET_COLOR_NEURON(), scaleFactor), 255);

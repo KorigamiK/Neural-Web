@@ -21,10 +21,10 @@ int main(int argc, char const *argv[])
   TrainingData trainData("/home/korigamik/Dev/projects/ml/neural-web/training-data.txt");
 
   // e.g., { 3, 2, 1 }
-  vector<unsigned> topology;
+  Topology topology;
   trainData.getTopology(topology);
 
-  Netowrk myNet(topology);
+  Network myNet(topology);
 
   vector<double> inputVals, targetVals, resultVals;
   int trainingPass = 0;

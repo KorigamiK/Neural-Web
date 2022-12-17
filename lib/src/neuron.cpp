@@ -89,6 +89,16 @@ double Neuron::getOutputVal(void) const
   return m_outputVal;
 }
 
+unsigned Neuron::getNumOutputs(void) const
+{
+  return m_outputWeights.size();
+}
+
+const std::vector<Connection> &Neuron::getOutputWeights(void) const
+{
+  return m_outputWeights;
+}
+
 Neuron::Neuron(unsigned numOutputs, unsigned myIndex)
 {
   for (unsigned c = 0; c < numOutputs; ++c)

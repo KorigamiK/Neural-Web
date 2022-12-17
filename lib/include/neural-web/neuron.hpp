@@ -44,4 +44,6 @@ public:
   void calcOutputGradients(double targetVal);
   void calcHiddenGradients(const Layer &nextLayer);
   void updateInputWeights(Layer &prevLayer);
+  unsigned getNumOutputs(void) const;
+  const std::vector<Connection> &getOutputWeights(void) const;
 };

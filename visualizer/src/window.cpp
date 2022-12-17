@@ -86,7 +86,8 @@ void Window::mainLoop()
       break;
 
     case SDL_MOUSEMOTION:
-      repaint = ioGrid->updateMousePosition(event.motion.x, event.motion.y);
+      ioGrid->updateMousePosition(event.motion.x,
+                                  event.motion.y); // Hover actions are not needed for now
       break;
 
     case SDL_MOUSEBUTTONDOWN:
@@ -136,11 +137,8 @@ void Window::mainLoop()
 
 void Window::initNeuralNetwork()
 {
-  Topology networkTopology{
-      .inputLayerSize = 2, .outputLayerSize = 3, .hiddenLayers = {2}, .bias = 1};
+  Topology networkTopology{2, 2, 3};
   neuralNetwork = std::make_shared<Network>(networkTopology);
-
-  neuralNetwork->printLayers();
 }
 
 void Window::stop()

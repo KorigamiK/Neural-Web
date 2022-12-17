@@ -6,9 +6,9 @@
 
 #include "neural-web/neuron.hpp"
 
-double Netowrk::m_recentAverageSmoothingFactor = 100.0;
+double Network::m_recentAverageSmoothingFactor = 100.0;
 
-void Netowrk::getResults(std::vector<double> &resultVals) const
+void Network::getResults(std::vector<double> &resultVals) const
 {
   resultVals.clear();
 
@@ -18,7 +18,17 @@ void Netowrk::getResults(std::vector<double> &resultVals) const
   }
 }
 
-void Netowrk::backPropagate(const std::vector<double> &targetVals)
+const Topology &Network::getTopology(void) const
+{
+  return m_topology;
+}
+
+const std::vector<Layer> &Network::getLayers(void) const
+{
+  return m_layers;
+}
+
+void Network::backPropagate(const std::vector<double> &targetVals)
 {
   // Calculate overall net error (RMS of output neuron errors)
   Layer &outputLayer = m_layers.back();
@@ -70,7 +80,7 @@ void Netowrk::backPropagate(const std::vector<double> &targetVals)
   }
 }
 
-void Netowrk::feedForward(const std::vector<double> &inputVals)
+void Network::feedForward(const std::vector<double> &inputVals)
 {
   assert(inputVals.size() == m_layers[0].size() - 1);
 
@@ -91,12 +101,12 @@ void Netowrk::feedForward(const std::vector<double> &inputVals)
   }
 }
 
-double Netowrk::getRecentAverageError(void) const
+double Network::getRecentAverageError(void) const
 {
   return m_recentAverageError;
 }
 
-Netowrk::Netowrk(const std::vector<unsigned> &topology)
+Network::Network(const Topology &topology) : m_topology(topology)
 {
   unsigned numLayers = topology.size();
   for (unsigned layerNum = 0; layerNum < numLayers; ++layerNum)
