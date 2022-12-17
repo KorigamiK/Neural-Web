@@ -10,5 +10,6 @@ struct TransferFunction
 
 namespace ActivationFunctions
 {
-extern TransferFunction sigmoid;
-}
+extern TransferFunction Sigmoid;
+extern TransferFunction Tanh;
+} // namespace ActivationFunctions

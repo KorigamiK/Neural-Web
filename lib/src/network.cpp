@@ -6,158 +6,114 @@
 
 #include "neural-web/neuron.hpp"
 
-void Network::createBiasNeurons(unsigned layerNum, unsigned numOutputs)
+double Brain::m_recentAverageSmoothingFactor = 100.0;
+
+void Brain::getResults(std::vector<double> &resultVals) const
 {
-  for (unsigned neuronNum = 0; neuronNum < topology.bias; ++neuronNum)
-    layers[layerNum].push_back(
-        Neuron(numOutputs, layers[layerNum].size() - 1 + neuronNum, 1.0));
-}
+  resultVals.clear();
 
-const std::vector<Layer> &Network::getLayers() const
-{
-  return layers;
-}
-
-void Network::createInputLayer()
-{
-  layers.push_back(Layer()); // topology.hiddenLayers[0] + topology.bias));
-
-  for (unsigned neuronNum = 0; neuronNum < topology.inputLayerSize; ++neuronNum)
-    layers.back().push_back(Neuron(topology.hiddenLayers[0] + topology.bias, neuronNum));
-
-  createBiasNeurons(0, topology.hiddenLayers[0] + topology.bias);
-}
-
-void Network::createOutputLayer()
-{
-  layers.push_back(Layer()); // topology.outputLayerSize)); // don't add bias neurons
-
-  for (unsigned neuronNum = 0; neuronNum < topology.outputLayerSize; ++neuronNum)
-    layers.back().push_back(Neuron(0, neuronNum));
-}
-
-void Network::createHiddenLayers()
-{
-  for (unsigned layerNum = 0; layerNum < topology.hiddenLayers.size() - 1; ++layerNum)
+  for (unsigned n = 0; n < m_layers.back().size() - 1; ++n)
   {
-    layers.push_back(Layer()); // topology.hiddenLayers[layerNum] + topology.bias));
-    unsigned numOutputs = topology.hiddenLayers[layerNum + 1] + topology.bias;
-
-    for (unsigned neuronNum = 0; neuronNum < topology.hiddenLayers[layerNum]; ++neuronNum)
-      layers.back().push_back(Neuron(numOutputs, neuronNum));
-
-    createBiasNeurons(layerNum + 1, numOutputs); // add bias neurons next from input layer
-  }
-
-  layers.push_back(Layer()); // topology.hiddenLayers.back() + topology.bias));
-  for (unsigned neuronNum = 0; neuronNum < topology.hiddenLayers.back(); ++neuronNum)
-    layers.back().push_back(Neuron(topology.outputLayerSize, neuronNum));
-
-  createBiasNeurons(layers.size() - 1,
-                    topology.outputLayerSize); // add bias neurons to last output layer
-}
-
-Network::Network(const Topology topology) : name{"neural-web"}, topology{topology}
-{
-  std::cout << "Network::Network()" << std::endl;
-  createInputLayer();
-  createHiddenLayers();
-  createOutputLayer();
-}
-
-void Network::feedForward(const std::vector<double> &inputs)
-{
-  assert(inputs.size() == topology.inputLayerSize);
-
-  for (unsigned i = 0; i < inputs.size(); ++i)
-    layers[0][i].setOutputVal(inputs[i]);
-
-  for (unsigned layerNum = 1; layerNum < layers.size(); ++layerNum)
-  {
-    Layer &prevLayer = layers[layerNum - 1];
-    for (unsigned n = 0; n < layers[layerNum].size(); ++n)
-    {
-      layers[layerNum][n].feedForward(prevLayer);
-    }
+    resultVals.push_back(m_layers.back()[n].getOutputVal());
   }
 }
 
-void Network::backPropagate(const std::vector<double> &targets)
+void Brain::backPropagate(const std::vector<double> &targetVals)
 {
   // Calculate overall net error (RMS of output neuron errors)
-  // RMS = sqrt(1/N * sum((target - actual)^2))
-  // N = number of output neurons
+  Layer &outputLayer = m_layers.back();
+  m_error = 0.0;
 
-  Layer &outputLayer = layers.back();
-  error = 0.0;
-
-  // output layer doesn't have bias neurons
-  for (unsigned n = 0; n < outputLayer.size(); ++n)
+  for (unsigned n = 0; n < outputLayer.size() - 1; ++n)
   {
-    double delta = targets[n] - outputLayer[n].getOutputVal();
-    error += delta * delta;
+    double delta = targetVals[n] - outputLayer[n].getOutputVal();
+    m_error += delta * delta;
   }
-  error /= outputLayer.size() - 1; // get average error squared
-  error = sqrt(error);             // RMS
+  m_error /= outputLayer.size() - 1; // get average error squared
+  m_error = sqrt(m_error);           // RMS
 
   // Implement a recent average measurement
-  recentAverageError = (recentAverageError * recentAverageSmoothingFactor + error) /
-                       (recentAverageSmoothingFactor + 1.0);
+  m_recentAverageError =
+      (m_recentAverageError * m_recentAverageSmoothingFactor + m_error) /
+      (m_recentAverageSmoothingFactor + 1.0);
 
   // Calculate output layer gradients
-  // Each output neuron's gradient = (target - actual) * transfer function derivative
-  for (unsigned n = 0; n < outputLayer.size(); ++n)
-    outputLayer[n].calcOutputGradients(targets[n]);
+  for (unsigned n = 0; n < outputLayer.size() - 1; ++n)
+  {
+    outputLayer[n].calcOutputGradients(targetVals[n]);
+  }
 
   // Calculate hidden layer gradients
-  // Each hidden neuron's gradient =
-  //      sum(output gradients * output weights) * transfer function derivative
-  // skip output & input layer
-  for (unsigned layerNum = layers.size() - 2; layerNum > 0; --layerNum)
+  for (unsigned layerNum = m_layers.size() - 2; layerNum > 0; --layerNum)
   {
-    Layer &hiddenLayer = layers[layerNum];
-    Layer &nextLayer = layers[layerNum + 1];
+    Layer &hiddenLayer = m_layers[layerNum];
+    Layer &nextLayer = m_layers[layerNum + 1];
 
     for (unsigned n = 0; n < hiddenLayer.size(); ++n)
+    {
       hiddenLayer[n].calcHiddenGradients(nextLayer);
+    }
   }
 
   // For all layers from outputs to first hidden layer,
   // update connection weights
-  // Each connection's weight = weight + learningRate * output gradient * output value
-  for (unsigned layerNum = layers.size() - 1; layerNum > 0; --layerNum)
-  {
-    Layer &layer = layers[layerNum];
-    Layer &prevLayer = layers[layerNum - 1];
 
-    for (unsigned n = 0; n < layer.size() - topology.bias; ++n)
+  for (unsigned layerNum = m_layers.size() - 1; layerNum > 0; --layerNum)
+  {
+    Layer &layer = m_layers[layerNum];
+    Layer &prevLayer = m_layers[layerNum - 1];
+
+    for (unsigned n = 0; n < layer.size() - 1; ++n)
+    {
       layer[n].updateInputWeights(prevLayer);
+    }
   }
 }
 
-void Network::getResults(std::vector<double> &results) const
+void Brain::feedForward(const std::vector<double> &inputVals)
 {
-  results.clear();
+  assert(inputVals.size() == m_layers[0].size() - 1);
 
-  for (unsigned n = 0; n < layers.back().size(); ++n)
-    results.push_back(layers.back()[n].getOutputVal());
-}
-
-double Network::getRecentAverageError() const
-{
-  return recentAverageError;
-}
-
-void Network::printLayers() const
-{
-  for (unsigned layerNum = 0; layerNum < layers.size(); ++layerNum)
+  // Assign (latch) the input values into the input neurons
+  for (unsigned i = 0; i < inputVals.size(); ++i)
   {
-    std::cout << "Layer " << layerNum << std::endl;
-    for (unsigned neuronNum = 0; neuronNum < layers[layerNum].size(); ++neuronNum)
+    m_layers[0][i].setOutputVal(inputVals[i]);
+  }
+
+  // forward propagate
+  for (unsigned layerNum = 1; layerNum < m_layers.size(); ++layerNum)
+  {
+    Layer &prevLayer = m_layers[layerNum - 1];
+    for (unsigned n = 0; n < m_layers[layerNum].size() - 1; ++n)
     {
-      std::cout << "Neuron " << neuronNum
-                << " Value: " << layers[layerNum][neuronNum].getOutputVal() << std::endl;
-      layers[layerNum][neuronNum].printWeights();
+      m_layers[layerNum][n].feedForward(prevLayer);
     }
+  }
+}
+
+double Brain::getRecentAverageError(void) const
+{
+  return m_recentAverageError;
+}
+
+Brain::Brain(const std::vector<unsigned> &topology)
+{
+  unsigned numLayers = topology.size();
+  for (unsigned layerNum = 0; layerNum < numLayers; ++layerNum)
+  {
+    m_layers.push_back(Layer());
+    unsigned numOutputs = layerNum == topology.size() - 1 ? 0 : topology[layerNum + 1];
+
+    // We have a new layer, now fill it with neurons, and
+    // add a bias neuron in each layer.
+    for (unsigned neuronNum = 0; neuronNum <= topology[layerNum]; ++neuronNum)
+    {
+      m_layers.back().push_back(Neuron(numOutputs, neuronNum));
+      std::cout << "Made a Neuron!" << std::endl;
+    }
+
+    // Force the bias node's output to 1.0 (it was the last neuron pushed in
+    // this layer):
+    m_layers.back().back().setOutputVal(1.0);
   }
 }

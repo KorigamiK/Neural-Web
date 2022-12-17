@@ -3,91 +3,99 @@
 #include <cmath>
 #include <iostream>
 
-#include "neural-web/functions.hpp"
-
-using Layer = std::vector<Neuron>;
-
 double Neuron::eta = 0.15;
 double Neuron::alpha = 0.5;
 
-Neuron::Neuron(unsigned numOutputs, unsigned ownIndex, double outputValue)
-    : outputValue{outputValue}, ownIndex{ownIndex},
-      transferFunction{ActivationFunctions::sigmoid}, numOutputs{numOutputs}
+void Neuron::updateInputWeights(Layer &prevLayer)
 {
-  for (unsigned c = 0; c < numOutputs; ++c)
+  // The weights to be updated are in the Connection container
+  // in the neurons in the preceding layer
+  for (unsigned n = 0; n < prevLayer.size(); ++n)
   {
-    outputWeights.push_back(Connection());
-    outputWeights.back().weight = randomWeight();
+    Neuron &neuron = prevLayer[n];
+    double oldDeltaWeight = neuron.m_outputWeights[m_myIndex].deltaWeight;
+
+    double newDeltaWeight =
+        // Individual input, magnified by the gradient and train rate:
+        eta * neuron.getOutputVal() * m_gradient
+        // Also add momentum = a fraction of the previous delta weight;
+        + alpha * oldDeltaWeight;
+
+    neuron.m_outputWeights[m_myIndex].deltaWeight = newDeltaWeight;
+    neuron.m_outputWeights[m_myIndex].weight += newDeltaWeight;
   }
 }
 
-const std::vector<Connection> &Neuron::getOutputWeights() const
-{
-  return outputWeights;
-}
-
-void Neuron::feedForward(const std::vector<Neuron> &prevLayer)
+double Neuron::sumDOW(const Layer &nextLayer) const
 {
   double sum = 0.0;
 
-  for (auto &neuron : prevLayer)
-    sum += neuron.outputValue * neuron.outputWeights[ownIndex].weight;
-
-  outputValue = transferFunction.function(sum);
-}
-
-void Neuron::calcOutputGradients(double targetVal)
-{
-  double delta = targetVal - outputValue;
-  gradient = delta * transferFunction.derivative(outputValue);
-}
-
-void Neuron::calcHiddenGradients(const std::vector<Neuron> &nextLayer)
-{
-  double dow = sumDOW(nextLayer);
-  gradient = dow * transferFunction.derivative(outputValue);
-}
-
-double Neuron::sumDOW(const std::vector<Neuron> &nextLayer) const
-{
-  double sum = 0.0;
+  // Sum our contributions of the errors at the nodes we feed.
 
   for (unsigned n = 0; n < nextLayer.size() - 1; ++n)
-    sum += outputWeights[n].weight * nextLayer[n].gradient;
+  {
+    sum += m_outputWeights[n].weight * nextLayer[n].m_gradient;
+  }
 
   return sum;
 }
 
-void Neuron::updateInputWeights(std::vector<Neuron> &prevLayer)
+void Neuron::calcHiddenGradients(const Layer &nextLayer)
 {
-  for (auto &neuron : prevLayer)
+  double dow = sumDOW(nextLayer);
+  m_gradient = dow * Neuron::transferFunctionDerivative(m_outputVal);
+}
+
+void Neuron::calcOutputGradients(double targetVal)
+{
+  double delta = targetVal - m_outputVal;
+  m_gradient = delta * Neuron::transferFunctionDerivative(m_outputVal);
+}
+
+double Neuron::transferFunction(double x)
+{
+  // tanh - output range [-1.0..1.0]
+  return tanh(x);
+}
+
+double Neuron::transferFunctionDerivative(double x)
+{
+  // tanh derivative
+  return 1.0 - x * x;
+}
+
+void Neuron::feedForward(const Layer &prevLayer)
+{
+  double sum = 0.0;
+
+  // Sum the previous layer's outputs (which are our inputs)
+  // Include the bias node from the previous layer.
+
+  for (unsigned n = 0; n < prevLayer.size(); ++n)
   {
-    double oldDeltaWeight = neuron.outputWeights[ownIndex].deltaWeight;
-
-    double newDeltaWeight =
-        // Individual input, magnified by the gradient and train rate:
-        eta * neuron.getOutputVal() * gradient
-        // Also add momentum = a fraction of the previous delta weight
-        + alpha * oldDeltaWeight;
-
-    neuron.outputWeights[ownIndex].deltaWeight = newDeltaWeight;
-    neuron.outputWeights[ownIndex].weight += newDeltaWeight;
+    sum += prevLayer[n].getOutputVal() * prevLayer[n].m_outputWeights[m_myIndex].weight;
   }
+
+  m_outputVal = Neuron::transferFunction(sum);
 }
 
 void Neuron::setOutputVal(double val)
 {
-  outputValue = val;
+  m_outputVal = val;
 }
 
 double Neuron::getOutputVal(void) const
 {
-  return outputValue;
+  return m_outputVal;
 }
 
-void Neuron::printWeights() const
+Neuron::Neuron(unsigned numOutputs, unsigned myIndex)
 {
-  for (auto &connection : outputWeights)
-    std::cout << connection.weight << " ";
-  std::cout << std::endl;
+  for (unsigned c = 0; c < numOutputs; ++c)
+  {
+    m_outputWeights.push_back(Connection());
+    m_outputWeights.back().weight = randomWeight();
+  }
+
+  m_myIndex = myIndex;
 }

@@ -12,7 +12,8 @@
             "description": "Build the visualizer",
             "configurePreset": "Linux",
             "targets": [
-                "visualizer"
+                "visualizer",
+                "neural-web-test"
             ]
         },
         {
