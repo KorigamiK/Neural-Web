@@ -136,8 +136,9 @@ void Window::mainLoop()
 
     SDL_RenderPresent(renderer);
   }
-
+#ifndef __EMSCRIPTEN__
   SDL_Delay(50);
+#endif
 }
 
 void Window::initNeuralNetwork()

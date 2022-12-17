@@ -8,6 +8,15 @@ project(
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 file(GLOB_RECURSE HEADERS "include/*.hpp")
 
+# make symbolic link to res folder in the build directory
+execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res)
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    # preload res folder
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file res")
+endif()
+
 message(STATUS "Visualizer Sources: ${SOURCES}")
 message(STATUS "Visualizer Headers: ${HEADERS}")
 
