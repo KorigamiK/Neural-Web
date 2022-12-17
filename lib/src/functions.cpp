@@ -14,3 +14,7 @@ TransferFunction ActivationFunctions::Sigmoid = {
 
 TransferFunction ActivationFunctions::Tanh = {[](double x) { return tanh(x); },
                                               [](double x) { return 1.0 - x * x; }};
+
+TransferFunction ActivationFunctions::ReLU = {
+    [](double x) { return x > 0.0 ? x : 0.0; },
+    [](double x) { return x > 0.0 ? 1.0 : 0.0; }};

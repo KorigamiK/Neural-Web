@@ -18,7 +18,7 @@ void showVectorVals(std::string label, vector<double> &v)
 
 int main(int argc, char const *argv[])
 {
-  TrainingData trainData("/home/korigamik/Dev/projects/ml/neural-web/training-data.txt");
+  TrainingData trainData("training-data.txt");
 
   // e.g., { 3, 2, 1 }
   Topology topology;
@@ -36,9 +36,7 @@ int main(int argc, char const *argv[])
 
     // Get new input data and feed it forward:
     if (trainData.getNextInputs(inputVals) != topology[0])
-    {
       break;
-    }
     showVectorVals(": Inputs:", inputVals);
     myNet.feedForward(inputVals);
 

@@ -91,10 +91,11 @@ void Window::mainLoop()
       break;
 
     case SDL_MOUSEBUTTONDOWN:
-      ioGrid->addSelectedCell();
-      repaint = true;
-      ioGrid->update();
-      mlpVisualizer->update();
+      if (ioGrid->addSelectedCell())
+      {
+        repaint = true;
+        iterationCount = epochCount;
+      }
       break;
 
     case SDL_KEYDOWN:
@@ -119,12 +120,16 @@ void Window::mainLoop()
     }
   }
 
-  if (repaint)
+  if (repaint || iterationCount > 0)
   {
     repaint = false;
+    iterationCount--;
 
     SDL_SetRenderDrawColor(renderer, COLOR_BACKGROUND, 255);
     SDL_RenderClear(renderer);
+
+    ioGrid->update();
+    mlpVisualizer->update();
 
     ioGrid->draw();
     mlpVisualizer->draw();
@@ -137,7 +142,7 @@ void Window::mainLoop()
 
 void Window::initNeuralNetwork()
 {
-  Topology networkTopology{2, 2, 3};
+  Topology networkTopology{2, 4, 2, 3};
   neuralNetwork = std::make_shared<Network>(networkTopology);
 }
 

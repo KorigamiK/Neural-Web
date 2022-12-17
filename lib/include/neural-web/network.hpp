@@ -22,7 +22,7 @@ public:
   void backPropagate(const std::vector<double> &targets);
 
   /** @brief Get the results of the last feed forward
-   @param results The container of the results */
+      @param results The container of the results */
   void getResults(std::vector<double> &results) const;
 
   double getRecentAverageError(void) const;
