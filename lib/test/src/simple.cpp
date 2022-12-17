@@ -24,7 +24,7 @@ int main(int argc, char const *argv[])
   vector<unsigned> topology;
   trainData.getTopology(topology);
 
-  Brain myNet(topology);
+  Netowrk myNet(topology);
 
   vector<double> inputVals, targetVals, resultVals;
   int trainingPass = 0;

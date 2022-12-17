@@ -6,9 +6,9 @@
 
 #include "neural-web/neuron.hpp"
 
-double Brain::m_recentAverageSmoothingFactor = 100.0;
+double Netowrk::m_recentAverageSmoothingFactor = 100.0;
 
-void Brain::getResults(std::vector<double> &resultVals) const
+void Netowrk::getResults(std::vector<double> &resultVals) const
 {
   resultVals.clear();
 
@@ -18,7 +18,7 @@ void Brain::getResults(std::vector<double> &resultVals) const
   }
 }
 
-void Brain::backPropagate(const std::vector<double> &targetVals)
+void Netowrk::backPropagate(const std::vector<double> &targetVals)
 {
   // Calculate overall net error (RMS of output neuron errors)
   Layer &outputLayer = m_layers.back();
@@ -70,7 +70,7 @@ void Brain::backPropagate(const std::vector<double> &targetVals)
   }
 }
 
-void Brain::feedForward(const std::vector<double> &inputVals)
+void Netowrk::feedForward(const std::vector<double> &inputVals)
 {
   assert(inputVals.size() == m_layers[0].size() - 1);
 
@@ -91,12 +91,12 @@ void Brain::feedForward(const std::vector<double> &inputVals)
   }
 }
 
-double Brain::getRecentAverageError(void) const
+double Netowrk::getRecentAverageError(void) const
 {
   return m_recentAverageError;
 }
 
-Brain::Brain(const std::vector<unsigned> &topology)
+Netowrk::Netowrk(const std::vector<unsigned> &topology)
 {
   unsigned numLayers = topology.size();
   for (unsigned layerNum = 0; layerNum < numLayers; ++layerNum)

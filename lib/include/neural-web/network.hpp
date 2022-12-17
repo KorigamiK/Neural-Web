@@ -12,10 +12,10 @@ typedef std::vector<Neuron> Layer;
  * 		- For now it's a fully, forward connected network
  *
  */
-class Brain
+class Netowrk
 {
 public:
-  Brain(const std::vector<unsigned> &topology);
+  Netowrk(const std::vector<unsigned> &topology);
 
   void feedForward(const std::vector<double> &inputs);
 

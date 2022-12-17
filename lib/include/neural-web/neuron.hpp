@@ -27,6 +27,7 @@ private:
   std::vector<Connection> m_outputWeights;
   unsigned m_myIndex;
   double m_gradient;
+
   /** @brief The transfer function (activation funciton) used to calculate the output
   value of the neuron.
   */
