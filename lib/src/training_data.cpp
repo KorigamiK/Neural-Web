@@ -3,7 +3,14 @@
 #include <iostream>
 #include <sstream>
 
-void TrainingData::getTopology(std::vector<unsigned> &topology)
+#include "neural-web/topology.hpp"
+
+bool TrainingData::isEof(void)
+{
+  return m_trainingDataFile.eof();
+}
+
+void TrainingData::getTopology(Topology &topology)
 {
   std::string line;
   std::string label;

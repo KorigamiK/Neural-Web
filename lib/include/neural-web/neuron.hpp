@@ -11,6 +11,9 @@ struct Connection
   double deltaWeight;
 };
 
+class Neuron;
+using Layer = std::vector<Neuron>;
+
 // @brief An implicitly connected and fully connected neuron.
 class Neuron
 {
@@ -20,29 +23,27 @@ private:
   /// @brief The momentum, multiplier of the last weight change (deltaWeight).
   static double alpha;
 
-  double outputValue;
-  std::vector<Connection> outputWeights;
-  unsigned ownIndex;
-  double gradient;
-  /* @brief The transfer function (activation funciton) used to calculate the output
-    value of the neuron.
-  */
-  TransferFunction &transferFunction;
+  double m_outputVal;
+  std::vector<Connection> m_outputWeights;
+  unsigned m_myIndex;
+  double m_gradient;
 
-  /// @brief Sum of the derivatives of the weights of the next layer.
-  double sumDOW(const std::vector<Neuron> &nextLayer) const;
+  /** @brief The transfer function (activation funciton) used to calculate the output
+  value of the neuron.
+  */
+  static double transferFunction(double x);
+  static double transferFunctionDerivative(double x);
+
+  double sumDOW(const Layer &nextLayer) const;
 
 public:
-  const unsigned numOutputs;
-  const std::vector<Connection> &getOutputWeights() const;
-
-  Neuron(unsigned numOutputs, unsigned ownIndex, double outputValue = 0.0);
-
-  void printWeights() const;
+  Neuron(unsigned numOutputs, unsigned myIndex);
   void setOutputVal(double val);
   double getOutputVal(void) const;
-  void feedForward(const std::vector<Neuron> &prevLayer);
+  void feedForward(const Layer &prevLayer);
   void calcOutputGradients(double targetVal);
-  void calcHiddenGradients(const std::vector<Neuron> &nextLayer);
-  void updateInputWeights(std::vector<Neuron> &prevLayer);
+  void calcHiddenGradients(const Layer &nextLayer);
+  void updateInputWeights(Layer &prevLayer);
+  unsigned getNumOutputs(void) const;
+  const std::vector<Connection> &getOutputWeights(void) const;
 };

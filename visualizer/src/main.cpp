@@ -9,9 +9,6 @@
 auto main(int argc, char const *argv[]) -> int
 {
   std::cout << "Visualizer with constant " << APP_CONSTANT << std::endl;
-  Network lib(Topology{
-      .inputLayerSize = 3, .outputLayerSize = 2, .hiddenLayers = {2, 3}, .bias = 1});
-  std::cout << "Library " << lib.name << std::endl;
 
   Window window;
 

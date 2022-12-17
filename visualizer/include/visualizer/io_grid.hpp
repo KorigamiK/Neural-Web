@@ -46,7 +46,9 @@ public:
   void update();
   /// @return true if the mouse is inside the grid
   bool updateMousePosition(int x, int y);
-  void addSelectedCell();
+  /** @brief Adds the hovered cell to the user inputs
+      @return true if a change to the user inputs was made */
+  bool addSelectedCell();
   void updatePositionRect(SDL_Rect positionRect);
   void setOutputType(OutputType outputType);
 };

@@ -29,8 +29,6 @@ void FontManager::loadFont(const char *path, int size)
 SDL_Texture *FontManager::getTexture(std::string &text, SDL_Color color,
                                      SDL_Renderer *renderer)
 {
-  log("FontManager::getTexture()");
-
   SDL_Surface *surface = TTF_RenderText_Solid(fontBase, text.c_str(), color);
   if (surface == nullptr)
     log("Failed to create surface from text");

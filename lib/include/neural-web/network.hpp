@@ -15,32 +15,27 @@ typedef std::vector<Neuron> Layer;
 class Network
 {
 public:
-  std::string name;
-
-  const Topology topology;
-
-  Network(const Topology topology);
+  Network(const Topology &topology);
 
   void feedForward(const std::vector<double> &inputs);
 
   void backPropagate(const std::vector<double> &targets);
 
-  /// @brief Get the results of the last feed forward
-  /// @param results The container of the results
+  /** @brief Get the results of the last feed forward
+      @param results The container of the results */
   void getResults(std::vector<double> &results) const;
 
-  const std::vector<Layer> &getLayers() const;
-  double getRecentAverageError() const;
-  void printLayers() const;
+  double getRecentAverageError(void) const;
+
+  const Topology &getTopology(void) const;
+
+  const std::vector<Layer> &getLayers(void) const;
 
 private:
-  std::vector<Layer> layers;
-  double error;
-  double recentAverageError = 0.0;
-  double recentAverageSmoothingFactor;
-
-  void createInputLayer();
-  void createHiddenLayers();
-  void createOutputLayer();
-  void createBiasNeurons(unsigned layerNum, unsigned numOutputs);
+  std::vector<Layer> m_layers;
+  double m_error;
+  double m_recentAverageError;
+  /// @brief Number of training samples to average over
+  static double m_recentAverageSmoothingFactor;
+  Topology m_topology;
 };

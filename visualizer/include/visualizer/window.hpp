@@ -19,6 +19,11 @@ class Window
 private:
   bool running = true;
   bool repaint = true;
+
+  /// @brief Number of epochs to train the neural network for on each update
+  int const epochCount = 2;
+  int iterationCount = 1;
+
   std::shared_ptr<Network> neuralNetwork;
   std::unique_ptr<MLP> mlpVisualizer;
   std::unique_ptr<IOGrid> ioGrid;

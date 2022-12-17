@@ -5,7 +5,9 @@
 #include <iostream>
 #include <vector>
 
-void showVectorVals(std::string label, std::vector<double> &v)
+using std::vector;
+
+void showVectorVals(std::string label, vector<double> &v)
 {
   std::cout << label << " ";
   for (unsigned i = 0; i < v.size(); ++i)
@@ -14,41 +16,45 @@ void showVectorVals(std::string label, std::vector<double> &v)
   std::cout << std::endl;
 }
 
-auto main(int argc, char const *argv[]) -> int
+int main(int argc, char const *argv[])
 {
-  auto network = Network(Topology{
-      .inputLayerSize = 2, .outputLayerSize = 1, .hiddenLayers = {4}, .bias = 1});
-  auto trainingData =
-      TrainingData("/home/korigamik/Dev/projects/ml/neural-web/training-data.txt");
+  TrainingData trainData("training-data.txt");
 
-  std::vector<double> inputVals, targetVals, resultVals;
-  unsigned trainingPass = 0;
+  // e.g., { 3, 2, 1 }
+  Topology topology;
+  trainData.getTopology(topology);
 
-  while (!trainingData.isEof())
+  Network myNet(topology);
+
+  vector<double> inputVals, targetVals, resultVals;
+  int trainingPass = 0;
+
+  while (!trainData.isEof())
   {
     ++trainingPass;
     std::cout << std::endl << "Pass " << trainingPass;
 
     // Get new input data and feed it forward:
-    assert(trainingData.getNextInputs(inputVals) == network.topology.inputLayerSize);
+    if (trainData.getNextInputs(inputVals) != topology[0])
+      break;
     showVectorVals(": Inputs:", inputVals);
-    network.feedForward(inputVals);
-    network.getResults(resultVals);
+    myNet.feedForward(inputVals);
+
+    // Collect the net's actual output results:
+    myNet.getResults(resultVals);
     showVectorVals("Outputs:", resultVals);
 
     // Train the net what the outputs should have been:
-    trainingData.getTargetOutputs(targetVals);
+    trainData.getTargetOutputs(targetVals);
     showVectorVals("Targets:", targetVals);
-    assert(targetVals.size() == network.topology.outputLayerSize);
+    assert(targetVals.size() == topology.back());
 
-    network.backPropagate(targetVals);
+    myNet.backPropagate(targetVals);
 
     // Report how well the training is working, average over recent samples:
-    std::cout << "Net recent average error: " << network.getRecentAverageError()
+    std::cout << "Net recent average error: " << myNet.getRecentAverageError()
               << std::endl;
   }
 
   std::cout << std::endl << "Done" << std::endl;
-
-  return network.name == "neural-web" ? 0 : 1;
 }
