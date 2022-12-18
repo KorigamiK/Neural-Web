@@ -44,11 +44,14 @@ public:
 
   void draw();
   void update();
-  /// @return true if the mouse is inside the grid
-  bool updateMousePosition(int x, int y);
+
+  // Hover events make web browser go brrrr...
+  // /// @return true if the mouse is inside the grid
+  // bool updateMousePosition(int x, int y);
+
   /** @brief Adds the hovered cell to the user inputs
       @return true if a change to the user inputs was made */
-  bool addSelectedCell();
+  bool addSelectedCell(int x, int y);
   void updatePositionRect(SDL_Rect positionRect);
   void setOutputType(OutputType outputType);
 };

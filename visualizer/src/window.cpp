@@ -85,13 +85,15 @@ void Window::mainLoop()
       }
       break;
 
-    case SDL_MOUSEMOTION:
-      ioGrid->updateMousePosition(event.motion.x,
-                                  event.motion.y); // Hover actions are not needed for now
-      break;
+      /*	// Hover actions are not needed for now
+        case SDL_MOUSEMOTION:
+            ioGrid->updateMousePosition(event.motion.x,
+                                                                    event.motion.y);
+            break;
+            */
 
     case SDL_MOUSEBUTTONDOWN:
-      if (ioGrid->addSelectedCell())
+      if (ioGrid->addSelectedCell(event.button.x, event.button.y))
       {
         repaint = true;
         iterationCount = epochCount;

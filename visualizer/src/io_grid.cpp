@@ -18,6 +18,9 @@ void IOGrid::drawUserInputs()
 {
   for (auto &input : UserInputs)
   {
+    std::cout << "Drawing user input" << input.first.first << " " << input.first.second
+              << std::endl;
+
     int cellRadius = positionRect.w / GRID_SIZE_X / 4;
 
     int x = positionRect.x + input.first.first * positionRect.w / GRID_SIZE_X +
@@ -102,6 +105,7 @@ void IOGrid::draw()
   drawUserInputs();
 }
 
+/* // Not used
 bool IOGrid::updateMousePosition(int x, int y)
 {
   SDL_Point mousePosition = {x, y};
@@ -119,28 +123,44 @@ bool IOGrid::updateMousePosition(int x, int y)
     return false;
   }
 }
+*/
 
-bool IOGrid::addSelectedCell()
+bool IOGrid::addSelectedCell(int x, int y)
 {
-  if (cellHovered.first == -1 || cellHovered.second == -1)
+  /*
+if (cellHovered.first == -1 || cellHovered.second == -1)
+  return false;
+
+if (UserInputs.find(cellHovered) != UserInputs.end())
+{
+  UserInputs.erase(cellHovered);
+  return true;
+}
+  */
+
+  SDL_Point mousePosition = {x, y};
+  if (!SDL_PointInRect(&mousePosition, &positionRect))
     return false;
 
-  if (UserInputs.find(cellHovered) != UserInputs.end())
-  {
-    UserInputs.erase(cellHovered);
-    return true;
-  }
+  int cellX = (x - positionRect.x) * GRID_SIZE_X / positionRect.w;
+  int cellY = (y - positionRect.y) * GRID_SIZE_Y / positionRect.h;
+  std::pair<int, int> cell = {cellX, cellY};
+
+  if (UserInputs.find(cell) != UserInputs.end())
+    UserInputs.erase(cell);
+
+  std::pair<int, int> selectedCell = {cellX, cellY};
 
   switch (outputType)
   {
   case OutputType::RED:
-    UserInputs[cellHovered] = {1, 0, 0};
+    UserInputs[selectedCell] = {1, 0, 0};
     break;
   case OutputType::GREEN:
-    UserInputs[cellHovered] = {0, 1, 0};
+    UserInputs[selectedCell] = {0, 1, 0};
     break;
   case OutputType::BLUE:
-    UserInputs[cellHovered] = {0, 0, 1};
+    UserInputs[selectedCell] = {0, 0, 1};
     break;
   }
 
@@ -168,8 +188,6 @@ void IOGrid::update()
 
       if (UserInputs.find({i, j}) != UserInputs.end())
       {
-        std::cout << "found" << std::endl;
-        std::cout << i << " " << j << " " << std::endl;
         targetVector[0] = UserInputs[{i, j}].r;
         targetVector[1] = UserInputs[{i, j}].g;
         targetVector[2] = UserInputs[{i, j}].b;

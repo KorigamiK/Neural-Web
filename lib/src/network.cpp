@@ -28,10 +28,9 @@ const std::vector<Layer> &Network::getLayers(void) const
 
 void Network::backPropagate(const std::vector<double> &targetVals)
 {
-  for (int i = 0; i < targetVals.size(); i++)
-  {
-    std::cout << "targetVals[" << i << "] = " << targetVals[i] << std::endl;
-  }
+  // for (int i = 0; i < targetVals.size(); i++)
+  //   std::cout << "targetVals[" << i << "] = " << targetVals[i] << std::endl;
+
   // Calculate overall net error (RMS of output neuron errors)
   Layer &outputLayer = m_layers.back();
   m_error = 0.0;
