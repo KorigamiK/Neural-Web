@@ -37,8 +37,29 @@
             "generator": "Ninja",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "static-library",
+            "inherits": "executable",
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "OFF"
+            },
+            "hidden": true
+        },
+        {
+            "name": "debug",
+            "hidden": true,
+            "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
@@ -47,12 +68,19 @@
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake"
             },
-            "inherits": "executable"
+            "inherits": [
+                "executable",
+                "release",
+                "static-library"
+            ]
         },
         {
             "name": "Linux",
             "binaryDir": "${workspaceFolder}/build/linux",
-            "inherits": "executable"
+            "inherits": [
+                "executable",
+                "debug"
+            ]
         }
     ],
     "testPresets": [

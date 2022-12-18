@@ -18,9 +18,6 @@ void IOGrid::drawUserInputs()
 {
   for (auto &input : UserInputs)
   {
-    std::cout << "Drawing user input" << input.first.first << " " << input.first.second
-              << std::endl;
-
     int cellRadius = positionRect.w / GRID_SIZE_X / 4;
 
     int x = positionRect.x + input.first.first * positionRect.w / GRID_SIZE_X +
