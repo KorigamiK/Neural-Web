@@ -5,7 +5,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "SDL_pixels.h"
 #include "graphics/font.hpp"
 #include "neural-web/functions.hpp"
 #include "visualizer/colors.hpp"
